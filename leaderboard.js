@@ -48,37 +48,41 @@ async function loadLeaderboard() {
     };
   });
 
+  // Wait for all calls to complete
   const leaderboardData = await Promise.all(promises);
 
-  leaderboardData.forEach(data => {
+   // Sort by votes descending
+   leaderboardData.sort((a, b) => b.votes - a.votes);
+
+ // Render leaderboard
+   leaderboardData.forEach((data, index) => {
     const row = document.createElement("div");
     row.className = "leaderboard-item";
     row.innerHTML = `
-      <span class="position">${data.position}</span>
+      <span class="position">${index + 1}</span>
       <img src="https://unavatar.io/twitter/${data.xLink}" class="pfp">
       <span class="username">${data.username}</span>
       <span>🖕🏿 ${data.votes}</span>
       <span>⭐ ${data.points}</span>
       <a href="https://x.com/${data.xLink}" target="_blank">View X</a>
       <button class="vote-btn">Vote</button>
-    `;
+     `;
 
     row.querySelector(".vote-btn").onclick = async () => {
-      try {
-        const tx = await contract.vote(data.username);
-        await tx.wait();
-        alert("Voted!");
-        loadLeaderboard();
-      } catch (err) {
-        console.error(err);
-        alert("Failed to vote");
-      }
+        try{
+            const tx = await contract.vote(data.username);
+            await tx.wait();
+            alert("Voted!");
+            loadLeaderboard();
+        } catch (err) {
+            console.error(err);
+            alert("Failed to vote");
+        }
     };
 
     leaderboardEl.appendChild(row);
   });
 }
-
 function filterLeaderboard() {
   const filter = searchInput.value.toLowerCase().trim();
   const items = document.querySelectorAll(".leaderboard-item");
