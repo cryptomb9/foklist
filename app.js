@@ -9,6 +9,11 @@ let contract;
 
 const connectBtn = document.getElementById("connectBtn");
 const addBtn = document.getElementById("addBtn");
+const formModal = document.getElementById("formModal");
+const usernameInput = document.getElementById("usernameInput");
+const xInput = document.getElementById("xInput");
+const submitBtn = document.getElementById("submitBtn");
+const cancelBtn = document.getElementById("cancelBtn");
 
 connectBtn.onclick = async () => {
   if (typeof window.ethereum === "undefined") {
@@ -22,28 +27,42 @@ connectBtn.onclick = async () => {
 
   const address = await signer.getAddress();
   connectBtn.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
-
-  loadLeaderboard();
 };
 
-addBtn.onclick = async () => {
-  const username = prompt("Enter username:").toLowerCase().trim();
-  if (!username) return;
-  const xLink = prompt("Enter X (Twitter) username:").trim();
-  if (!xLink) return;
+addBtn.onclick = () => {
+  formModal.classList.remove("hidden");
+};
+
+cancelBtn.onclick = () => {
+  formModal.classList.add("hidden");
+  usernameInput.value = "";
+  xInput.value = "";
+};
+
+submitBtn.onclick = async () => {
+  const username = usernameInput.value.toLowerCase().trim();
+  const xLink = xInput.value.trim();
+
+  if (!username || !xLink) {
+    alert("Please fill in both fields.");
+    return;
+  }
 
   try {
     const tx = await contract.addPerson(username);
     await tx.wait();
     alert("Person added on-chain!");
 
-    // Store X profile in Firebase
     await set(ref(db, "profiles/" + username), {
       x: xLink
     });
 
+    formModal.classList.add("hidden");
+    usernameInput.value = "";
+    xInput.value = "";
+
   } catch (err) {
     console.error(err);
-    alert("Failed to add person. Maybe they already exist?");
+    alert("Failed to add person:\n" + (err.data?.message || err.message));
   }
 };
