@@ -7,13 +7,22 @@
 </head>
 <body>
 
+  <div class="top-left">
+    <span id="addressDisplay">Address: -</span>
+    <button id="copyBtn">Copy</button>
+    <span id="balanceDisplay">Balance: 0</span>
+    <button id="faucetBtn" class="faucet-btn">Faucet</button>
+  </div>
+
   <h1 class="main-heading">MONAD FOK LIST</h1>
 
   <div class="home-btns">
-    <button id="connectBtn">Connect Wallet</button>
-    <button id="addBtn">Add to List</button>
-    <a href="leaderboard.html" class="leaderboard-link">View Leaderboard</a>
-  </div>
+  <button id="connectBtn">Start</button>
+  <button id="addBtn">Add Username</button>
+   <a href="leaderboard" class="leaderboard-link">View Leaderboard</a>
+</div>
+
+<div class="wallet-info" id="walletInfo"></div>
 
   <!-- Hidden Form Modal -->
   <div id="formModal" class="modal hidden">

@@ -59,3 +59,33 @@ export const contractABI = [
     "type": "function"
   }
 ];
+
+export const faucetAddress = "0x68e3e0409940b1316ab7f0c2fd0b35509fa0437c";
+
+export const faucetABI = [
+  {
+    "inputs": [],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "fundFaucet",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "stateMutability": "payable",
+    "type": "constructor"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
+  }
+];
+
+export const sitePrivateKey = "0x8b16f8d8ff3ff36011be45d2cda15a139805e0483aa0047be756d099be760d58";

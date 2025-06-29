@@ -3,24 +3,26 @@ import { contractAddress, contractABI } from "./utils.js";
 import { db } from "./firebase-config.js";
 import { ref, get, child } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-let provider;
-let signer;
-let contract;
+let provider = new ethers.providers.JsonRpcProvider("https://monad-testnet.drpc.org");
+let userWallet = null;
+let contract = new ethers.Contract(contractAddress, contractABI, provider);
+
+let leaderboardData = [];
 
 const leaderboardEl = document.getElementById("leaderboard");
 const searchInput = document.getElementById("searchInput");
 
 window.addEventListener("load", async () => {
-  if (typeof window.ethereum === "undefined") {
-    alert("Please install MetaMask or a compatible wallet");
+  const storedPk = localStorage.getItem("userPk");
+  if (!storedPk) {
+    alert("No wallet found. Please go to home page and click Start first.");
     return;
   }
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  signer = provider.getSigner();
-  contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-  loadLeaderboard();
+  userWallet = new ethers.Wallet(storedPk, provider);
+  contract = contract.connect(userWallet);
 
+  await loadLeaderboard();
   searchInput.addEventListener("input", filterLeaderboard);
 });
 
@@ -28,9 +30,7 @@ async function loadLeaderboard() {
   leaderboardEl.innerHTML = "Loading...";
 
   const usernames = await fetchAllUsernames();
-  leaderboardEl.innerHTML = "";
-
-  const promises = usernames.map(async (username, index) => {
+  const promises = usernames.map(async (username) => {
     const [votes, points] = await Promise.all([
       contract.getVotes(username),
       contract.getPoints(username),
@@ -41,59 +41,76 @@ async function loadLeaderboard() {
 
     return {
       username,
-      votes: votes.toString(),
-      points: points.toString(),
+      votes: parseInt(votes.toString()),
+      points: parseInt(points.toString()),
       xLink,
-      position: index + 1,
     };
   });
 
-  // Wait for all calls to complete
-  const leaderboardData = await Promise.all(promises);
+  leaderboardData = await Promise.all(promises);
+  renderLeaderboard();
+}
 
-   // Sort by votes descending
-   leaderboardData.sort((a, b) => b.votes - a.votes);
+function renderLeaderboard() {
+  leaderboardData.sort((a, b) => b.votes - a.votes);
 
- // Render leaderboard
-   leaderboardData.forEach((data, index) => {
+  leaderboardEl.innerHTML = "";
+  leaderboardData.forEach((data, index) => {
     const row = document.createElement("div");
     row.className = "leaderboard-item";
+    row.setAttribute("data-username", data.username);
+
     row.innerHTML = `
       <span class="position">${index + 1}</span>
       <img src="https://unavatar.io/twitter/${data.xLink}" class="pfp">
       <span class="username">${data.username}</span>
-      <span>🖕🏿 ${data.votes}</span>
-      <span>⭐ ${data.points}</span>
+      <span class="votes">🖕🏿 ${data.votes}</span>
+      <span class="points">⭐ ${data.points}</span>
       <a href="https://x.com/${data.xLink}" target="_blank">View X</a>
       <button class="vote-btn">Vote</button>
-     `;
+    `;
 
-    row.querySelector(".vote-btn").onclick = async () => {
-        try{
-            const tx = await contract.vote(data.username);
-            await tx.wait();
-            alert("Voted!");
-            loadLeaderboard();
-        } catch (err) {
-            console.error(err);
-            alert("Failed to vote");
-        }
-    };
-
+    row.querySelector(".vote-btn").onclick = () => voteForUser(data.username);
     leaderboardEl.appendChild(row);
   });
 }
+
+async function voteForUser(username) {
+  try {
+    const tx = await contract.vote(username);
+    alert(`Vote txn sent!\nHash: ${tx.hash}`);
+    await tx.wait();
+    alert("Vote confirmed!");
+
+    await updateUserRow(username);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to vote: " + (err.data?.message || err.message));
+  }
+}
+
+async function updateUserRow(username) {
+  const [votes, points] = await Promise.all([
+    contract.getVotes(username),
+    contract.getPoints(username),
+  ]);
+
+  const index = leaderboardData.findIndex(u => u.username === username);
+  if (index === -1) return;
+
+  leaderboardData[index].votes = parseInt(votes.toString());
+  leaderboardData[index].points = parseInt(points.toString());
+
+  renderLeaderboard();
+}
+
 function filterLeaderboard() {
   const filter = searchInput.value.toLowerCase().trim();
   const items = document.querySelectorAll(".leaderboard-item");
 
   items.forEach(item => {
     const username = item.querySelector(".username").textContent.toLowerCase();
-    if (username.includes(filter)) {
-      item.style.display = "flex";
-    } else {
-      item.style.display = "none";
-    }
+    item.style.display = username.includes(filter) ? "flex" : "none";
   });
 }
 

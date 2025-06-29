@@ -7,50 +7,56 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  padding: 2em 1em;
 }
 
 .main-heading {
   margin: 0;
-  font-size: 3em;
+  font-size: 2.5em;
   font-family: 'Comic Sans MS', cursive, sans-serif;
   text-align: center;
   width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .home-btns {
   display: flex;
   flex-direction: column;
-  gap: 1.5em;
-  width: 90%;
+  gap: 2em;
+  width: 100%;
+  max-width: 300px;
   margin-top: 3em;
+  align-items: center;
 }
 
-input[type="text"] {
-  padding: 1em;
+input[type="text"], button, .leaderboard-link {
+  font-size: 1.4em;
+  padding: 1.2em;
   border-radius: 999px;
   border: none;
-  width: 100%;
-  font-size: 1.2em;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  width: 100%;
 }
 
-button, .leaderboard-link, .back-btn {
+button, .leaderboard-link {
   background: #fff;
   color: #5e0acc;
-  border: none;
-  padding: 1em;
-  border-radius: 999px;
   cursor: pointer;
   font-weight: bold;
   text-decoration: none;
-  font-size: 1.2em;
-  text-align: center;
- 
 }
 
-button:hover, .leaderboard-link:hover, .back-btn:hover {
+button:hover, .leaderboard-link:hover {
   background: #ddd;
+}
+
+.faucet-btn {
+  background: #ffbb00;
+  color: black;
 }
 
 .footer {
@@ -60,16 +66,65 @@ button:hover, .leaderboard-link:hover, .back-btn:hover {
   color: white;
   font-size: 1em;
 }
+
 .footer a {
   color: #e4e2e6;
   text-decoration: none;
   font-weight: bold;
 }
+
 .footer a:hover {
   text-decoration: underline;
 }
 
-/* ============ Leaderboard Page ============ */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: rgb(15, 2, 39);
+  color: #5e0acc;
+  padding: 2em 1em;
+  border-radius: 1em;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  text-align: center;
+  align-items: center;
+}
+
+.modal-content input {
+  padding: 1em;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ======= Leaderboard Styles ======= */
 
 header {
   width: 100%;
@@ -131,89 +186,27 @@ header {
   font-weight: bold;
   font-size: 1.2em;
 }
-.modal {
+.top-left {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.modal-content {
-  background: rgb(15, 2, 39);
-  color: #5e0acc;
-  padding: 2em;
-  border-radius: 1em;
-  width: 80%;
-  max-width: 400px;
+  top: 1em;
+  left: 1em;
   display: flex;
   flex-direction: column;
-  gap: 1em;
-  text-align: center;
-  box-sizing: border-box;
-  align-items: center;
-}
-
-.modal-content input {
+  gap: 0.5em;
+  background: rgba(12, 12, 12, 0.3);
   padding: 1em;
   border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1em;
-  width: 100%;
-  max-width: 300px;
-  box-sizing: border-box;
+  z-index: 1000;
 }
 
-.form-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 1em;
+.top-left span, .top-left button {
+  font-size: 0.9em;
+  color: rgb(3, 3, 3);
 }
 
-.hidden {
-  display: none;
-}
-/* Make body fill full screen and center content */
-body {
-  min-height: 100vh;
-  justify-content: center;
-  padding: 2em 1em;
-}
-
-/* Prevent heading from breaking into two lines on small screens */
-.main-heading {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 2.5em;
-}
-
-/* Make buttons bigger and spaced nicely on mobile */
-.home-btns {
-  gap: 2em;
-  width: 100%;
-  max-width: 300px;
-  margin-top: 3em;
-}
-
-/* Prevent input text from being too small */
-input[type="text"], button, .leaderboard-link {
-  font-size: 1.4em;
-  padding: 1.2em;
-}
-
-/* Modal tweaks to center content properly */
-.modal-content {
-  width: 90%;
-  padding: 2em 1em;
-}
-
-/* Prevent modal inputs from overflowing */
-.modal-content input {
-  max-width: 100%;
+#copyBtn, #faucetBtn {
+  padding: 0.5em;
+  border-radius: 8px;
+  font-size: 0.9em;
+  cursor: pointer;
 }
